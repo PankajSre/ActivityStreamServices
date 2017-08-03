@@ -1,1 +1,1 @@
-# ActivityStreamCircleServices
+# ActivityStreamServices

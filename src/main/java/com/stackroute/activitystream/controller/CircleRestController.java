@@ -1,62 +1,47 @@
 package com.stackroute.activitystream.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stackroute.activitystream.dao.UserCircleDAO;
+import com.stackroute.activitystream.dao.CircleDAO;
+import com.stackroute.activitystream.model.Circle;
 import com.stackroute.activitystream.model.UserCircle;
-
-
-
 @RestController
-@RequestMapping("/api/circle")
+@RequestMapping("/api/circles")
 public class CircleRestController {
 
-
 	@Autowired
-	UserCircleDAO userCircleDAO;
+	CircleDAO circleDAO;
 	
 	@RequestMapping(value = "/createCircle", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserCircle> createCircle(@RequestBody UserCircle userCircle) {
+	public ResponseEntity<Circle> createCircle(@RequestBody Circle userCircle) {
 
-		if (userCircleDAO.addCircle(userCircle) == true) {
+		if (circleDAO.addCircle(userCircle) == true) {
 			userCircle.setErrorCode("200");
 			userCircle.setErrorMessage("you have Successfully created the Circle ");
 		} else {
 			userCircle.setErrorCode("404");
 			userCircle.setErrorMessage("Your Circle has not been created");
 		}
-		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+		return new ResponseEntity<Circle>(userCircle, HttpStatus.OK);
 	}
-	@RequestMapping(value = "/circleById/{circleName}", method = RequestMethod.GET)
-	public ResponseEntity<UserCircle> getCircleById(@PathVariable("circleName") String circleName) {
-		UserCircle userCircle =userCircleDAO.getCircleByName(circleName);
-		if (userCircle == null) {
-			userCircle = new UserCircle();
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("Circle does not exist");
-			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
-		}
+	
+	@GetMapping("/getAllCircles")
+	public List<Circle> getAllCircles()
+	{
+		List<Circle> allCircles=circleDAO.getAllCircles();
 		
-		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+		return allCircles;
 	}
-	@RequestMapping(value = "/deactivateCircle/{circleName}", method = RequestMethod.PUT)
-	public ResponseEntity<UserCircle> deleteCircleById(@PathVariable("circleName") String circleName) {
-		UserCircle userCircle =userCircleDAO.getCircleByName(circleName);
-		if (userCircle == null) {
-			userCircle = new UserCircle();
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("Circle does not exist");
-			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
-		}
-		userCircleDAO.deleteCircle(userCircle, userCircle.getCreatedBy());
-		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
-	}
+	
 }
